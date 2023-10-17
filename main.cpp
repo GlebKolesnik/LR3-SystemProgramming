@@ -31,7 +31,7 @@ void displayTokens(const std::vector<Token>& tokens);
 int main() {
     std::string code = R"(
         using System;
-
+         #pragma
         namespace HelloWorld {
             class Program {
                 static void Main(string[] args) {
@@ -136,6 +136,16 @@ std::vector<Token> tokenize(const std::string& code) {
                 if (code[i + 1] == '/') isSingleLineComment = true;
                 else if (code[i + 1] == '*') isMultiLineComment = true;
             }
+        }
+        // Handle preprocessor directives
+        if (c == '#' && !isString && !isSingleLineComment && !isMultiLineComment) {
+            token += c;
+            while (i + 1 < code.length() && !std::isspace(code[i + 1])) {
+                token += code[++i];
+            }
+            tokens.push_back({ token, PREPROCESSOR_DIRECTIVE });
+            token.clear();
+            continue;
         }
 
         // Handle end of comments
